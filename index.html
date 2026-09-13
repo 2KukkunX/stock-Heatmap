@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>株ヒートマップ</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="株ヒートマップ" />
+<link rel="apple-touch-icon" href="/icon-180.png" />
+<link rel="manifest" href="/manifest.json" />
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #0B0C0F;
+    font-family: -apple-system, "Hiragino Sans", sans-serif;
+    color: #F5F5F0;
+    min-height: 100vh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  header {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 { font-size: 16px; margin: 0; font-weight: 700; }
+  .tabs { display: flex; gap: 8px; padding: 0 16px 12px; }
+  .tabs button {
+    border: none;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    background: #1B1E24;
+    color: #9CA3AF;
+  }
+  .tabs button.active { background: #F4B942; color: #14161A; }
+  .widget-wrap { padding: 0 10px; }
+  .tradingview-widget-container { border-radius: 12px; overflow: hidden; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>日本株ヒートマップ</h1>
+</header>
+
+<div class="tabs">
+  <button class="active" id="tab-stock">銘柄別</button>
+  <button id="tab-sector">セクター別</button>
+</div>
+
+<div class="widget-wrap">
+  <div class="tradingview-widget-container" id="tv-heatmap">
+    <div class="tradingview-widget-container__widget"></div>
+  </div>
+</div>
+
+<script>
+  const baseConfig = {
+    exchanges: [],
+    dataSource: "AllJapan",
+    grouping: "no_group",
+    blockSize: "market_cap_basic",
+    blockColor: "change",
+    locale: "ja",
+    symbolUrl: "",
+    colorTheme: "dark",
+    hasTopBar: false,
+    isDataSetEnabled: false,
+    isZoomEnabled: true,
+    hasSymbolTooltip: true,
+    width: "100%",
+    height: "600"
+  };
+
+  function renderWidget(grouping) {
+    const container = document.getElementById("tv-heatmap");
+    container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js";
+    script.type = "text/javascript";
+    script.async = true;
+    script.innerHTML = JSON.stringify({ ...baseConfig, grouping });
+    container.appendChild(script);
+  }
+
+  document.getElementById("tab-stock").addEventListener("click", (e) => {
+    document.getElementById("tab-stock").classList.add("active");
+    document.getElementById("tab-sector").classList.remove("active");
+    renderWidget("no_group");
+  });
+  document.getElementById("tab-sector").addEventListener("click", (e) => {
+    document.getElementById("tab-sector").classList.add("active");
+    document.getElementById("tab-stock").classList.remove("active");
+    renderWidget("sector");
+  });
+
+  renderWidget("no_group");
+</script>
+
+</body>
+</html>
